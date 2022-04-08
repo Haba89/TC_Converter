@@ -1,0 +1,103 @@
+Sub XmlImport()
+
+'Assigning vriables
+
+Dim ws As Worksheet
+Dim xWb As Workbook
+Dim xSWb As Workbook
+Dim ruta As String
+  
+
+
+'Hiding running procceses from end-user
+
+Application.ScreenUpdating = False
+
+'Making all sheets the code needs access to visible.
+
+Sheets("DATA").Visible = True
+Sheets("DATAex").Visible = True
+Sheets("CSV").Visible = True
+Sheets("CSVex").Visible = True
+
+
+'Decalring objects
+Set wbk = ThisWorkbook
+Set ws = wbk.Worksheets("DATA")
+  
+ ActiveWorkbook.Worksheets("DATA").ListObjects("Table4").Resize Range("$A$1:$I$2")
+
+ ActiveWorkbook.Worksheets("DATA").Range("A2:I2000").Clear
+ 
+'Making the file explorer to start from where the user opens this converter for better user experience
+ChDrive "K"
+ruta = ThisWorkbook.Path & "\"
+ChDir ruta
+
+'file explorer to choose multiple XML-files
+filetoopen = Application _
+.GetOpenFilename("XML Files (*.xml), *.xml", , "Velg XML-filer til konvertering", , True)
+ 
+'turning off alerts to not disrupt the code running, for ex Possible to overwrite without asking
+Application.DisplayAlerts = False
+
+'If files are chosen, import XML into sheet "DATA" according to table mapping, reset content of "DATAex" and copy new content from "DATA" into "DATAex".
+'The reason why we use another sheet than "DATA" as stopover is to not mess up the XML table mapping.
+
+If IsArray(filetoopen) Then
+For Each fil In filetoopen
+Application.DisplayAlerts = False
+ActiveWorkbook.XmlMaps("Document_Map").Import URL:=fil
+Next fil
+
+ ActiveWorkbook.Worksheets("DATAex").Range("A2:I2000").Clear
+ ActiveWorkbook.Worksheets("DATA").Range("A2:I2000").Copy
+ ActiveWorkbook.Worksheets("DATAex").Range("A2:I2000").PasteSpecial Paste:=xlPasteValues
+
+'If no files are chosen in file explorer, reset what code has done so far, explain to user what happened, return to startpoint and stop code from running.
+Else
+Sheets("DATA").Visible = xlVeryHidden
+Sheets("DATAex").Visible = xlVeryHidden
+Sheets("CSV").Visible = xlVeryHidden
+ Sheets("CSVex").Visible = xlVeryHidden
+ 
+ Sheets("IMPORT").Select
+Range("A1").Select
+
+'Turning on alerts again
+Application.DisplayAlerts = True
+
+'Alert to inform end-user
+MsgBox "Ingen filer valgt, vennligst prøv igjen :-)"
+
+Exit Sub
+
+
+End If
+
+'Hide sheets used for dataimport and run the function to organize the data. Export a CSV file to import into Microsoft Dynamics Nav.
+
+Sheets("DATA").Visible = xlVeryHidden
+Sheets("DATAex").Visible = xlVeryHidden
+
+'Running new code as function, see module 2
+Call Lag_CSV
+
+
+Sheets("IMPORT").Select
+Range("A1").Select
+
+
+
+
+
+     
+    Exit Sub
+
+    
+ErrHandler:
+    MsgBox "Ingen xml filer valgt"
+    
+    
+End Sub
+
