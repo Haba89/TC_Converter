@@ -27,3 +27,15 @@ Approch:
 8. Distribute and communicating the solution to the accounting-department
 9. Training, support and bugfixes
 10. Handing over responsibility
+
+Process description:
+
+1. User opens up Macro-file, presses button for file dialog and selects xml-files
+2. Multiple XML-files are imported into a hided sheet with a table that is mapped according to the xml-contents. 
+3. Another sheet is configured with functions to retrieve and organize the data into a form that can be imported into Microsoft Dynamics Nav
+4. The content of the above sheet is copied and pasted as values into a new sheet
+5. The new sheet is exported into a new workbook that is saved automatically as a CSV-file.
+6. The user imports the CSV-file into Microsoft Dyamics Nav and the transactions are imported into a batch ready to post.
+7. While posting the user can get errors and by that getting allerted if there is error in the data from the travel agency or error in the statements of the PMS system. So already at this stage they get alerted, get a chance to correct the data and alerts of wrong input to the travel agency or the customer (the hotel).
+8. User reconciliates the transactions in the reconciliation system provided by Save Solutions; Account Control.
+
