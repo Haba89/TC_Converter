@@ -1,0 +1,125 @@
+Sub Lag_CSV()
+
+
+Dim wbkExport As Workbook
+Dim shtToExport As Worksheet
+
+ 
+ 'Reset and make sheet "CSVex" ready for new data
+ 
+ ActiveWorkbook.Worksheets("CSVex").Range("A4:O3000").Clear
+   
+   'Filter table on sheet "CSV" on required information, and copy into sheet "CSVex"
+   'The reason why we use "CSVex" as stopover is to not mess up the formulas in "CSV"
+   
+   Sheets("CSV").Select
+Range("A4:O3000").Select
+    Selection.AutoFilter
+    ActiveSheet.Range("$A$4:$O$3000").AutoFilter Field:=15, Criteria1:="<>"
+    ActiveWindow.SmallScroll Down:=408
+
+ Range("A4:O3000").Select
+
+'Pasting over data, as values only, excluding blanks
+
+    Selection.Copy
+    Sheets("CSVex").Select
+    Range("A4").Select
+    Selection.PasteSpecial Paste:=xlPasteValues, Operation:=xlNone, SkipBlanks _
+        :=False, Transpose:=False
+ 
+        
+    Sheets("CSVex").Select
+   
+'Correcting date and number formats in case wrong. This is important to avoid errors while importing file into Navision.
+
+'Date format, posting and document date'
+
+    Columns("A:B").Select
+    Selection.NumberFormat = "m/d/yyyy"
+    
+        
+'Number format, amounts
+    
+    Sheets("CSVex").Select
+    Range("O:O").Select
+    With Selection
+    Selection.NumberFormat = "General"
+    .Value = .Value
+ End With
+  
+ 'Sort on description column to get all relating transactions to a payment under each other.
+ 'Transaction on a payment has to balance for importing and to be able to assign proper Document Number in accounting system
+
+ Sheets("CSVex").Select
+ Sheets("CSVex").Sort.SortFields.Clear
+
+ 'Sorting on Document Number
+ With ActiveWorkbook.Sheets("CSVex").Sort
+ .SetRange Range("A4:O3000")
+        .SortFields.Add Key:=Range("O4"), Order:=xlAscending
+       .Header = xlYes
+        .Apply
+    End With
+     
+     
+'Finding last Document Number in CSVex, adding +1 to the number, inserting into master-sheet "Import" to be ready for next import.
+  
+  Sheets("CSVex").Select
+   Range("O5").Select
+       
+    Selection.End(xlDown).Select
+    Selection.Copy
+    Sheets("IMPORT").Select
+    Range("D9").Select
+    Selection.PasteSpecial Paste:=xlPasteValues, Operation:=xlNone, SkipBlanks _
+        :=False, Transpose:=False
+       
+    ActiveCell.Value = ActiveCell.Value + 1
+    
+     
+'Declaring objects, excisting workbook; this file, and new workbook for the import file.
+
+'Sheet to export as CSV
+Set shtToExport = ThisWorkbook.Worksheets("CSVex")
+Set wbkExport = Application.Workbooks.Add
+
+'Copy "CSVex" into new workbook
+shtToExport.Copy Before:=wbkExport.Worksheets(wbkExport.Worksheets.Count)
+
+'Possible to overwrite without asking
+Application.DisplayAlerts = False
+
+'Saving CSV-file automatically to same patch as this macro file, naming it automatically for best user experience and less interfierence
+
+wbkExport.SaveAs Filename:=ThisWorkbook.Path & "\TC_CSV", FileFormat:=xlCSV, Local:=True
+      
+    Application.DisplayAlerts = True
+    
+wbkExport.Close SaveChanges:=False
+
+'Turning off filters from the table
+  Worksheets("CSV").AutoFilterMode = False
+
+'Hiding sheets only used by code to protect the forms
+Sheets("CSV").Visible = xlVeryHidden
+Sheets("CSVex").Visible = xlVeryHidden
+  
+
+'Going back to end -user, startpoint
+Sheets("IMPORT").Select
+Range("A1").Select
+ 
+Application.ScreenUpdating = True
+
+
+'Confirming status and action to user
+MsgBox "SUPERT!" & vbNewLine & "" & vbNewLine & "Importfil lagret som TC_CSV på: " & vbNewLine & "" & vbNewLine & ActiveWorkbook.Path & vbNewLine & "" & vbNewLine & "Ha en fortsatt fin dag! :-)"
+
+
+
+End Sub
+
+
+
+
