@@ -8,8 +8,8 @@ Aim for this project was to:
 
 - Automate posting of payments for a certain partner
 - Standardize posting in the accounting system
-- Minimize risc for wrong posting
-- Minimize risc of collections for already paid receivables
+- Minimize risks for wrong posting
+- Minimize risks of collections for already paid receivables
 - Minimize needs and time associated with employee training
 - Facilitate and minimize reconciliation time
 - Minimize time for documentation by making transactions easily traceable
