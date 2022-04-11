@@ -1,4 +1,4 @@
-# TC_Converter - Solution for automating payments from travel agiencies
+# TC_Converter - Solution for automating payments from travel agencies
 
 Intro:
 
